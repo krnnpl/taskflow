@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE = process.env.REACT_APP_API_URL || 'https://taskflow-production-32a8.up.railway.app';
+const BASE = process.env.REACT_APP_API_URL || '';
 const api  = axios.create({ baseURL: BASE });
 
 api.interceptors.request.use(cfg => {
