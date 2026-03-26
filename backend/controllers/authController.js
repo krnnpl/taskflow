@@ -8,36 +8,42 @@ const signToken = (id) =>
 
 // Try to send email — but never crash if it fails
 const trySendInviteEmail = async (email, token, role, inviterName) => {
-  if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) return false;
+  if (!process.env.RESEND_API_KEY && !process.env.EMAIL_PASS) return false;
   try {
-    const emailPort = parseInt(process.env.EMAIL_PORT) || 587;
-    const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: emailPort,
-      secure: emailPort === 465,
-      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-      tls: { rejectUnauthorized: false },
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
-    });
+    const apiKey = process.env.RESEND_API_KEY || process.env.EMAIL_PASS;
     const link = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/register?token=${token}&email=${encodeURIComponent(email)}`;
-    await transporter.sendMail({
-      from: `"TaskFlow" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: `You've been invited to TaskFlow as ${role}`,
-      html: `
-        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;">
-          <h2 style="color:#6366f1">You're invited to TaskFlow!</h2>
-          <p><strong>${inviterName}</strong> has invited you to join as <strong>${role.toUpperCase()}</strong>.</p>
-          <p>Click the button below to create your account. This link expires in <strong>48 hours</strong>.</p>
-          <a href="${link}" style="display:inline-block;padding:12px 28px;background:#6366f1;color:white;text-decoration:none;border-radius:8px;font-weight:600;margin:16px 0;">
-            Accept Invitation
-          </a>
-          <p style="color:#94a3b8;font-size:12px;margin-top:24px;">Or copy this link:<br/>${link}</p>
-        </div>
-      `,
+    const fromEmail = process.env.EMAIL_FROM || 'TaskFlow <onboarding@resend.dev>';
+
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: fromEmail,
+        to: email,
+        subject: `You've been invited to TaskFlow as ${role}`,
+        html: `
+          <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;">
+            <h2 style="color:#6366f1">You're invited to TaskFlow!</h2>
+            <p><strong>${inviterName}</strong> has invited you to join as <strong>${role.toUpperCase()}</strong>.</p>
+            <p>Click the button below to create your account. This link expires in <strong>48 hours</strong>.</p>
+            <a href="${link}" style="display:inline-block;padding:12px 28px;background:#6366f1;color:white;text-decoration:none;border-radius:8px;font-weight:600;margin:16px 0;">
+              Accept Invitation
+            </a>
+            <p style="color:#94a3b8;font-size:12px;margin-top:24px;">Or copy this link:<br/>${link}</p>
+          </div>
+        `,
+      }),
     });
+
+    const data = await response.json();
+    if (!response.ok) {
+      console.warn('[Invite] Resend API error:', data);
+      return false;
+    }
+    console.log('[Invite] Email sent via Resend API:', data.id);
     return true;
   } catch (e) {
     console.warn('[Invite] Email send failed:', e.message);
