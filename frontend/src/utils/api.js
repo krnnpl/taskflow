@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const BASE = process.env.REACT_APP_API_URL || 'https://taskflow-production-32a8.up.railway.app';
+// Hardcoded Railway backend URL for production
+const BASE = 'https://taskflow-production-32a8.up.railway.app';
+
 const api  = axios.create({ baseURL: BASE });
 
 api.interceptors.request.use(cfg => {
@@ -21,41 +23,39 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
-
 export const taskAPI = {
-  getAll:           ()        => api.get('/api/tasks'),
-  getById:          (id)      => api.get(`/api/tasks/${id}`),
-  create:           (d)       => api.post('/api/tasks', d),
-  update:           (id, d)   => api.put(`/api/tasks/${id}`, d),
-  delete:           (id)      => api.delete(`/api/tasks/${id}`),
-  getStats:         ()        => api.get('/api/tasks/stats'),
-  getCalendar:      (y, m)    => api.get(`/api/tasks/calendar?year=${y}&month=${m}`),
-  getWorkload:      ()        => api.get('/api/tasks/workload'),
-  bulkUpdate:       (d)       => api.post('/api/tasks/bulk', d),
-  getActivity:      (id)      => api.get(`/api/tasks/${id}/activity`),
-  startTimer:       (id)      => api.post(`/api/tasks/${id}/timer/start`),
-  stopTimer:        (id)      => api.post(`/api/tasks/${id}/timer/stop`),
-  assignToWriter:   (id, d)   => api.put(`/api/tasks/${id}/assign-writer`, d),
-  getComments:      (id)      => api.get(`/api/tasks/${id}/comments`),
-  addComment:       (id, d)   => api.post(`/api/tasks/${id}/comments`, d),
-  deleteComment:    (cid)     => api.delete(`/api/tasks/comments/${cid}`),
-  getAttachments:   (id)      => api.get(`/api/tasks/${id}/attachments`),
-  uploadAttachment: (d)       => api.post('/api/tasks/attachments/upload', d, { headers: { 'Content-Type': 'multipart/form-data' } }),
-  downloadAttachment:(aid)    => `${BASE}/api/tasks/attachments/${aid}/download`,
-  deleteAttachment: (aid)     => api.delete(`/api/tasks/attachments/${aid}`),
+  getAll:         ()         => api.get('/api/tasks'),
+  getById:        (id)       => api.get(`/api/tasks/${id}`),
+  getStats:       ()         => api.get('/api/tasks/stats'),
+  getCalendarTasks: ()       => api.get('/api/tasks/calendar'),
+  getWorkload:    ()         => api.get('/api/tasks/workload'),
+  create:         (d)        => api.post('/api/tasks', d),
+  update:         (id, d)    => api.put(`/api/tasks/${id}`, d),
+  delete:         (id)       => api.delete(`/api/tasks/${id}`),
+  bulkUpdate:     (d)        => api.post('/api/tasks/bulk', d),
+  assignToWriter: (id, d)    => api.put(`/api/tasks/${id}/assign-writer`, d),
+  startTimer:     (id)       => api.post(`/api/tasks/${id}/timer/start`),
+  stopTimer:      (id)       => api.post(`/api/tasks/${id}/timer/stop`),
+  getActivity:    (id)       => api.get(`/api/tasks/${id}/activity`),
+  getComments:    (id)       => api.get(`/api/tasks/${id}/comments`),
+  addComment:     (id, d)    => api.post(`/api/tasks/${id}/comments`, d),
+  deleteComment:  (cid)      => api.delete(`/api/tasks/comments/${cid}`),
+  getAttachments: (id)       => api.get(`/api/tasks/${id}/attachments`),
+  uploadAttachment:(d)       => api.post('/api/tasks/attachments/upload', d, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  deleteAttachment:(aid)     => api.delete(`/api/tasks/attachments/${aid}`),
+  downloadAttachment:(aid)   => `${BASE}/api/tasks/attachments/${aid}/download`,
 };
 
 export const userAPI = {
-  getAll:             ()         => api.get('/api/users'),
-  getById:            (id)       => api.get(`/api/users/${id}`),
-  getWriters:         ()         => api.get('/api/users/writers'),
-  getAssigners:       ()         => api.get('/api/users/assigners'),
-  updateRole:         (id, role) => api.put(`/api/users/${id}/role`, { role }),
-  delete:             (id)       => api.delete(`/api/users/${id}`),
-  getMyPerformance:   ()         => api.get('/api/users/my-performance'),
-  getAvailability:    ()         => api.get('/api/users/availability'),
-  updateAvailability: (d)        => api.put('/api/users/availability', d),
+  getAll:           ()       => api.get('/api/users'),
+  getMe:            ()       => api.get('/api/auth/me'),
+  updateRole:       (id, r)  => api.put(`/api/users/${id}/role`, { role: r }),
+  delete:           (id)     => api.delete(`/api/users/${id}`),
+  getMyPerformance: ()       => api.get('/api/users/my-performance'),
+  getAllPerformance: ()       => api.get('/api/users/performance'),
+  updateAvailability:(d)     => api.put('/api/users/availability', d),
+  getAvailability:  ()       => api.get('/api/users/availability'),
+  updatePreferences:(d)      => api.put('/api/users/preferences', d),
 };
 
 export const feedbackAPI = {
@@ -67,10 +67,46 @@ export const feedbackAPI = {
 };
 
 export const notificationAPI = {
-  getAll:         ()   => api.get('/api/notifications'),
-  getUnreadCount: ()   => api.get('/api/notifications/unread-count'),
-  markRead:       (id) => api.put(`/api/notifications/${id}/read`),
-  markAllRead:    ()   => api.put('/api/notifications/mark-all-read'),
+  getAll:         ()         => api.get('/api/notifications'),
+  markRead:       (id)       => api.put(`/api/notifications/${id}/read`),
+  markAllRead:    ()         => api.put('/api/notifications/read-all'),
+  delete:         (id)       => api.delete(`/api/notifications/${id}`),
+};
+
+export const chatAPI = {
+  getUsers:          ()          => api.get('/api/chat/users'),
+  getUnreadCount:    ()          => api.get('/api/chat/unread-count'),
+  getDMList:         ()          => api.get('/api/chat/dm'),
+  getDMConversation: (uid)       => api.get(`/api/chat/dm/${uid}`),
+  sendDM:            (uid, d)    => api.post(`/api/chat/dm/${uid}`, d, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  editDM:            (id, d)     => api.put(`/api/chat/dm/${id}`, d),
+  deleteDM:          (id)        => api.delete(`/api/chat/dm/${id}`),
+  reactDM:           (id, d)     => api.post(`/api/chat/dm/${id}/react`, d),
+  getTaskChat:       (tid)       => api.get(`/api/chat/task/${tid}`),
+  sendTaskMessage:   (tid, d)    => api.post(`/api/chat/task/${tid}`, d, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  editTaskMessage:   (id, d)     => api.put(`/api/chat/task/message/${id}`, d),
+  deleteTaskMessage: (id)        => api.delete(`/api/chat/task/message/${id}`),
+  reactMessage:      (id, d)     => api.post(`/api/chat/task/message/${id}/react`, d),
+  fileUrl:           (id)        => `${BASE}/api/chat/file/${id}`,
+};
+
+export const creditAPI = {
+  getAll:    ()        => api.get('/api/credits'),
+  create:    (d)       => api.post('/api/credits', d, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  update:    (id, d)   => api.put(`/api/credits/${id}`, d),
+  delete:    (id)      => api.delete(`/api/credits/${id}`),
+  react:     (id, d)   => api.post(`/api/credits/${id}/react`, d),
+  fileUrl:   (id)      => `${BASE}/api/credits/file/${id}`,
+};
+
+export const analyticsAPI = {
+  getSummary:         ()     => api.get('/api/analytics/summary'),
+  getWriterStats:     ()     => api.get('/api/analytics/writers'),
+  getWriterReport:    (id)   => api.get(`/api/analytics/writer/${id}`),
+};
+
+export const searchAPI = {
+  search: (q) => api.get(`/api/search?q=${encodeURIComponent(q)}`),
 };
 
 export const authAPI = {
@@ -85,41 +121,4 @@ export const authAPI = {
   resetPassword:     (d)  => api.post('/api/auth/reset-password', d),
 };
 
-export const chatAPI = {
-  getUsers:          ()          => api.get('/api/chat/users'),
-  getUnreadCount:    ()          => api.get('/api/chat/unread-count'),
-  getDMList:         ()          => api.get('/api/chat/dm'),
-  getDMConversation: (uid)       => api.get(`/api/chat/dm/${uid}`),
-  sendDM:            (uid, d)    => api.post(`/api/chat/dm/${uid}`, d, { headers: { 'Content-Type': 'multipart/form-data' } }),
-  editDM:            (id, d)     => api.put(`/api/chat/dm/msg/${id}`, d),
-  deleteDM:          (id)        => api.delete(`/api/chat/dm/msg/${id}`),
-  reactDM:           (id, emoji) => api.post(`/api/chat/dm/msg/${id}/react`, { emoji }),
-  getTaskChat:       (tid)       => api.get(`/api/chat/task/${tid}`),
-  sendTaskMessage:   (tid, d)    => api.post(`/api/chat/task/${tid}`, d, { headers: { 'Content-Type': 'multipart/form-data' } }),
-  editTaskMessage:   (id, d)     => api.put(`/api/chat/task/msg/${id}`, d),
-  deleteTaskMessage: (id)        => api.delete(`/api/chat/task/msg/${id}`),
-  reactMessage:      (id, emoji) => api.post(`/api/chat/task/msg/${id}/react`, { emoji }),
-  fileUrl:           (id)        => `${BASE}/api/chat/file/${id}`,
-};
-
-export const creditAPI = {
-  getAll:   ()          => api.get('/api/credits'),
-  create:   (d)         => api.post('/api/credits', d, { headers: { 'Content-Type': 'multipart/form-data' } }),
-  update:   (id, d)     => api.put(`/api/credits/${id}`, d),
-  delete:   (id)        => api.delete(`/api/credits/${id}`),
-  react:    (id, emoji) => api.post(`/api/credits/${id}/react`, { emoji }),
-  fileUrl:  (id)        => `${BASE}/api/credits/file/${id}`,
-};
-
-export const searchAPI = {
-  search: (q) => api.get(`/api/search?q=${encodeURIComponent(q)}`),
-};
-
-export const analyticsAPI = {
-  getOverview:    ()   => api.get('/api/analytics/overview'),
-  getByMonth:     ()   => api.get('/api/analytics/by-month'),
-  getWriters:     ()   => api.get('/api/analytics/writers'),
-  getStatus:      ()   => api.get('/api/analytics/status'),
-  getPriority:    ()   => api.get('/api/analytics/priority'),
-  getWriterReport:(id) => api.get(`/api/analytics/writer/${id}`),
-};
+export default api;
