@@ -2,15 +2,10 @@
 nixPkgs = ["nodejs_20"]
 
 [phases.install]
-cmds = [
-  "npm install",
-  "cd /app/frontend && npm install"
-]
+cmds = ["npm install"]
 
 [phases.build]
-cmds = [
-  "cd /app/frontend && npm run build"
-]
+cmds = ["npm run build"]
 
 [start]
 cmd = "node server.js"
