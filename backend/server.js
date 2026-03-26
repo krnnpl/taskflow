@@ -33,7 +33,17 @@ app.get('/api/health', (req, res) => res.json({
 }));
 
 // Serve React frontend from backend
-const frontendBuild = path.join(__dirname, '../frontend/build');
+// Try multiple possible paths for frontend build
+const possiblePaths = [
+  path.join(__dirname, '../frontend/build'),
+  path.join(__dirname, '../../frontend/build'),
+  path.join('/app/frontend/build'),
+  path.join(process.cwd(), 'frontend/build'),
+  path.join(process.cwd(), '../frontend/build'),
+];
+const fs = require('fs');
+const frontendBuild = possiblePaths.find(p => fs.existsSync(p)) || path.join(__dirname, '../frontend/build');
+console.log('✓ Frontend build path:', frontendBuild, fs.existsSync(frontendBuild) ? '(found)' : '(NOT FOUND)');
 app.use(express.static(frontendBuild));
 app.get('*', (req, res) => {
   res.sendFile(path.join(frontendBuild, 'index.html'));
