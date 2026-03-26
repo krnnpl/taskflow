@@ -10,11 +10,16 @@ const signToken = (id) =>
 const trySendInviteEmail = async (email, token, role, inviterName) => {
   if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) return false;
   try {
+    const emailPort = parseInt(process.env.EMAIL_PORT) || 587;
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT) || 587,
-      secure: false,
+      port: emailPort,
+      secure: emailPort === 465,
       auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+      tls: { rejectUnauthorized: false },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
     });
     const link = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/register?token=${token}&email=${encodeURIComponent(email)}`;
     await transporter.sendMail({
