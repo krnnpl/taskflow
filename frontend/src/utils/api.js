@@ -121,4 +121,4 @@ export const authAPI = {
   resetPassword:     (d)  => api.post('/api/auth/reset-password', d),
 };
 
-export default api;
+export default api; 
