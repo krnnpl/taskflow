@@ -7,37 +7,14 @@ require('./models');
 
 const app = express();
 
-// CORS - allow frontend URL and common platforms
-app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin) return callback(null, true);
-    const allowed = [
-      process.env.FRONTEND_URL,
-      'http://localhost:3000',
-      'http://localhost:5000',
-    ].filter(Boolean);
-    if (
-      allowed.includes(origin) ||
-      origin.endsWith('.vercel.app') ||
-      origin.endsWith('.onrender.com') ||
-      origin.endsWith('.railway.app') ||
-      origin.endsWith('.up.railway.app')
-    ) {
-      callback(null, true);
-    } else {
-      callback(null, true);
-    }
-  },
-  credentials: true,
-}));
-
+app.use(cors({ origin: '*', credentials: true }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Routes
+// API Routes
 app.use('/api/auth',          require('./routes/auth'));
 app.use('/api/tasks',         require('./routes/tasks'));
 app.use('/api/users',         require('./routes/users'));
@@ -54,6 +31,13 @@ app.get('/api/health', (req, res) => res.json({
   timestamp: new Date().toISOString(),
   environment: process.env.NODE_ENV || 'development',
 }));
+
+// Serve React frontend from backend
+const frontendBuild = path.join(__dirname, '../frontend/build');
+app.use(express.static(frontendBuild));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(frontendBuild, 'index.html'));
+});
 
 // Global error handler
 app.use((err, req, res, next) => {
