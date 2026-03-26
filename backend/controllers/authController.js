@@ -111,7 +111,7 @@ exports.getPendingInvites = async (req, res) => {
     const allowed = getAllowedRoles(req.user.role);
     const invites = await User.findAll({
       where: { isActive: false, role: allowed },
-      attributes: ['id','email','role','inviteExpires','createdAt'],
+      attributes: ['id','email','role','inviteToken','inviteExpires','createdAt'],
       order: [['createdAt','DESC']],
     });
     const now = new Date();
