@@ -10,7 +10,7 @@ const signToken = (id) =>
 
 const getEmailHtml = (inviterName, role, link) => `
   <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;">
-    <h2 style="color:#6366f1">You're invited to TaskFlow!</h2>
+    <h2 style="color:#6366f1">You are invited to TaskFlow!</h2>
     <p><strong>${inviterName}</strong> has invited you to join as <strong>${role.toUpperCase()}</strong>.</p>
     <p>Click the button below to create your account. This link expires in <strong>48 hours</strong>.</p>
     <a href="${link}" style="display:inline-block;padding:12px 28px;background:#6366f1;color:white;text-decoration:none;border-radius:8px;font-weight:600;margin:16px 0;">
@@ -21,11 +21,10 @@ const getEmailHtml = (inviterName, role, link) => `
 `;
 
 const trySendInviteEmail = async (email, token, role, inviterName) => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return false;
   try {
     const link = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/register?token=${token}&email=${encodeURIComponent(email)}`;
 
-    // Use Resend HTTP API if key provided
+    // Try Resend HTTP API first (works on Railway - no SMTP needed)
     if (process.env.RESEND_API_KEY) {
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -35,34 +34,66 @@ const trySendInviteEmail = async (email, token, role, inviterName) => {
         },
         body: JSON.stringify({
           from: process.env.EMAIL_FROM || 'TaskFlow <onboarding@resend.dev>',
-          to: email,
-          subject: `You've been invited to TaskFlow as ${role}`,
+          to: [email],
+          subject: `You have been invited to TaskFlow as ${role}`,
           html: getEmailHtml(inviterName, role, link),
         }),
       });
       const data = await response.json();
-      if (!response.ok) { console.warn('[Invite] Resend error:', data.message); return false; }
-      console.log('[Invite] Email sent via Resend:', data.id);
+      if (!response.ok) {
+        console.warn('[Invite] Resend error:', JSON.stringify(data));
+        return false;
+      }
+      console.log('[Invite] Email sent via Resend to:', email);
       return true;
     }
 
-    // Use Gmail via nodemailer
-    const nodemailer = require('nodemailer');
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-    await transporter.sendMail({
-      from: `"TaskFlow" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: `You've been invited to TaskFlow as ${role}`,
-      html: getEmailHtml(inviterName, role, link),
-    });
-    console.log('[Invite] Email sent via Gmail to:', email);
-    return true;
+    // Try Mailjet HTTP API (free, no domain verification needed)
+    if (process.env.MAILJET_API_KEY && process.env.MAILJET_SECRET_KEY) {
+      const credentials = Buffer.from(`${process.env.MAILJET_API_KEY}:${process.env.MAILJET_SECRET_KEY}`).toString('base64');
+      const response = await fetch('https://api.mailjet.com/v3.1/send', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          Messages: [{
+            From: { Email: process.env.EMAIL_USER || 'kirannepal181@gmail.com', Name: 'TaskFlow' },
+            To: [{ Email: email }],
+            Subject: `You have been invited to TaskFlow as ${role}`,
+            HTMLPart: getEmailHtml(inviterName, role, link),
+          }],
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || data.Messages?.[0]?.Status !== 'success') {
+        console.warn('[Invite] Mailjet error:', JSON.stringify(data));
+        return false;
+      }
+      console.log('[Invite] Email sent via Mailjet to:', email);
+      return true;
+    }
+
+    // Fallback: nodemailer SMTP (works locally, blocked on Railway)
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      const nodemailer = require('nodemailer');
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+      });
+      await transporter.sendMail({
+        from: `"TaskFlow" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: `You have been invited to TaskFlow as ${role}`,
+        html: getEmailHtml(inviterName, role, link),
+      });
+      console.log('[Invite] Email sent via Gmail SMTP to:', email);
+      return true;
+    }
+
+    console.warn('[Invite] No email provider configured');
+    return false;
   } catch (e) {
     console.warn('[Invite] Email send failed:', e.message);
     return false;
