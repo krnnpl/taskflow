@@ -346,7 +346,10 @@ export default function ChatPage() {
       if (fileRef.current) fileRef.current.value = '';
       await fetchMessages(true);
       await loadSidebar();
-    } catch {} finally { setSending(false); }
+    } catch (err) {
+      console.error('[Chat] Send error:', err?.response?.data || err.message);
+      alert('Failed to send: ' + (err?.response?.data?.message || err.message || 'Unknown error'));
+    } finally { setSending(false); }
   }, [file, scheduledAt, fetchMessages, loadSidebar]);
 
   const handleReact = useCallback(async (msgId, emoji) => {
