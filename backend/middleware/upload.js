@@ -2,7 +2,7 @@ const multer = require('multer');
 const path   = require('path');
 const fs     = require('fs');
 
-const uploadDir = path.join(__dirname, '../uploads');
+const uploadDir = process.env.UPLOADS_DIR || path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 const storage = multer.diskStorage({
@@ -14,19 +14,5 @@ const storage = multer.diskStorage({
   },
 });
 
-const fileFilter = (req, file, cb) => {
-  const allowed = [
-    'image/jpeg','image/png','image/gif','image/webp',
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'text/plain','text/csv',
-    'application/zip','application/x-zip-compressed',
-  ];
-  if (allowed.includes(file.mimetype)) cb(null, true);
-  else cb(new Error(`File type ${file.mimetype} not allowed`), false);
-};
-
-module.exports = multer({ storage, fileFilter, limits: { fileSize: 20 * 1024 * 1024 } }); // 20MB
+// Allow all file types
+module.exports = multer({ storage, limits: { fileSize: 50 * 1024 * 1024 } }); // 50MB
