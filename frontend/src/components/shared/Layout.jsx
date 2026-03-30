@@ -100,10 +100,22 @@ export default function Layout({ children }) {
   const [anchorEl, setAnchorEl]     = useState(null);
 
   useEffect(() => {
-    const fetch = () => chatAPI.getUnreadCount().then(r => setChatUnread(r.data.unreadCount)).catch(() => {});
+    const fetch = () => chatAPI.getUnreadCount().then(r => {
+      const count = r.data.unreadCount || 0;
+      setChatUnread(count);
+      // Update browser tab title like Slack
+      if (count > 0) {
+        document.title = `(${count}) TaskFlow`;
+      } else {
+        document.title = 'TaskFlow';
+      }
+    }).catch(() => {});
     fetch();
-    const t = setInterval(fetch, 10000);
-    return () => clearInterval(t);
+    const t = setInterval(fetch, 5000);
+    return () => {
+      clearInterval(t);
+      document.title = 'TaskFlow';
+    };
   }, []);
 
   const roleColor = ROLE_COLORS[user?.role] || '#6366f1';

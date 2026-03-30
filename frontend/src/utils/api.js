@@ -82,12 +82,12 @@ export const chatAPI = {
   sendDM:            (uid, d)  => api.post(`/api/chat/dm/${uid}`, d, { headers: { 'Content-Type': 'multipart/form-data' } }),
   editDM:            (id, d)   => api.put(`/api/chat/dm/msg/${id}`, d),
   deleteDM:          (id)      => api.delete(`/api/chat/dm/msg/${id}`),
-  reactDM:           (id, d)   => api.post(`/api/chat/dm/msg/${id}/react`, d),
+  reactDM:           (id, emoji) => api.post(`/api/chat/dm/msg/${id}/react`, { emoji }),
   getTaskChat:       (tid)     => api.get(`/api/chat/task/${tid}`),
   sendTaskMessage:   (tid, d)  => api.post(`/api/chat/task/${tid}`, d, { headers: { 'Content-Type': 'multipart/form-data' } }),
   editTaskMessage:   (id, d)   => api.put(`/api/chat/task/msg/${id}`, d),
   deleteTaskMessage: (id)      => api.delete(`/api/chat/task/msg/${id}`),
-  reactMessage:      (id, d)   => api.post(`/api/chat/task/msg/${id}/react`, d),
+  reactMessage:      (id, emoji) => api.post(`/api/chat/task/msg/${id}/react`, { emoji }),
   fileUrl:           (id)      => `${BASE}/api/chat/file/${id}`,
 };
 

@@ -29,22 +29,38 @@ const fmtBytes = b => { if (!b) return ''; if (b < 1024) return `${b}B`; if (b <
 const FileAttachment = memo(({ msg, isMe }) => {
   const isImage = msg.fileMimeType?.startsWith('image/');
   const url = chatAPI.fileUrl(msg.id);
+
+  const handleDownload = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('taskflow_token');
+      const res = await fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      if (!res.ok) { alert('File not available. It may have been lost during server restart.'); return; }
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = msg.fileOriginalName || 'download';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch { alert('Download failed. Please try again.'); }
+  };
+
   if (isImage) return (
     <Box sx={{ mt: 0.5, maxWidth: 260 }}>
       <Box component="img" src={url} alt={msg.fileOriginalName}
         sx={{ maxWidth: '100%', maxHeight: 200, borderRadius: 2, display: 'block',
           cursor: 'pointer', border: '1px solid rgba(0,0,0,0.08)' }}
         onClick={() => window.open(url, '_blank')} />
-      <Box component="a" href={url} download={msg.fileOriginalName}
+      <Box component="a" href={url} onClick={handleDownload}
         sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, mt: 0.3,
           fontSize: 11, color: isMe ? 'rgba(255,255,255,0.7)' : '#6366f1',
-          textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
+          textDecoration: 'none', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}>
         <Download sx={{ fontSize: 12 }} />{msg.fileOriginalName}
       </Box>
     </Box>
   );
   return (
-    <Box component="a" href={url} download={msg.fileOriginalName}
+    <Box component="a" href={url} onClick={handleDownload}
       sx={{ mt: 0.5, display: 'inline-flex', alignItems: 'center', gap: 1,
         px: 1.5, py: 1, borderRadius: 2,
         bgcolor: isMe ? 'rgba(255,255,255,0.15)' : 'rgba(99,102,241,0.08)',
@@ -281,6 +297,8 @@ export default function ChatPage() {
       if (curTab === 0 && curUser)  data = (await chatAPI.getDMConversation(curUser.id)).data;
       if (curTab === 1 && curTask)  data = (await chatAPI.getTaskChat(curTask.id)).data;
       if (data) setMessages(data);
+      // Reload sidebar to clear unread count after reading messages
+      if (!silent) loadSidebar();
     } catch {} finally { if (!silent) setLoading(false); }
   }, []);
 
