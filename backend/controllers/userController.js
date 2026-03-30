@@ -6,6 +6,7 @@ exports.getAllUsers = async (req, res) => {
     const users = await User.findAll({
       where: { isActive: true },
       attributes: { exclude: ['password','inviteToken','inviteExpires','resetToken','resetExpires'] },
+      include: [{ model: Performance }],
       order: [['role','ASC'],['username','ASC']],
     });
     res.json(users);

@@ -33,7 +33,7 @@ function MetricBar({ label, value, color, icon, sub }) {
 export default function WriterPerformance() {
   const [perf, setPerf] = useState(null);
   useEffect(() => { userAPI.getMyPerformance().then(r => setPerf(r.data)).catch(() => {}); }, []);
-  if (!perf) return null;
+  if (!perf || !perf.userId) return null;
 
   const lc          = levelConfig[perf.level] || levelConfig.beginner;
   const score       = Math.round(perf.performanceScore || 0);
