@@ -52,6 +52,7 @@ export const userAPI = {
   delete:            (id)    => api.delete(`/api/users/${id}`),
   getMyPerformance:  ()      => api.get('/api/users/my-performance'),
   getAllPerformance:  ()      => api.get('/api/users/performance'),
+  getWriters:        ()      => api.get('/api/users/writers'),
   updateAvailability:(d)     => api.put('/api/users/availability', d),
   getAvailability:   ()      => api.get('/api/users/availability'),
   updatePreferences: (d)     => api.put('/api/users/preferences', d),

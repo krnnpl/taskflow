@@ -27,7 +27,7 @@ exports.getWriters = async (req, res) => {
     const writers = await User.findAll({
       where: { role: 'writer', isActive: true },
       attributes: { exclude: ['password','inviteToken','inviteExpires','resetToken','resetExpires'] },
-      include: [{ model: Performance, attributes: ['performanceScore','level'] }],
+      include: [{ model: Performance }],
     });
     res.json(writers);
   } catch (err) { res.status(500).json({ message: err.message }); }
@@ -45,8 +45,11 @@ exports.getAssigners = async (req, res) => {
 
 exports.getMyPerformance = async (req, res) => {
   try {
-    const perf = await Performance.findOne({ where: { userId: req.user.id } });
-    res.json(perf || {});
+    const [perf] = await Performance.findOrCreate({
+      where: { userId: req.user.id },
+      defaults: { userId: req.user.id }
+    });
+    res.json(perf);
   } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
@@ -99,7 +102,7 @@ exports.getAvailability = async (req, res) => {
     const writers = await User.findAll({
       where: { role: 'writer', isActive: true },
       attributes: ['id','username','availability','leaveReason','leaveUntil'],
-      include: [{ model: Performance, attributes: ['performanceScore','level'] }],
+      include: [{ model: Performance }],
     });
     // Count active tasks per writer
     const data = await Promise.all(writers.map(async w => {
