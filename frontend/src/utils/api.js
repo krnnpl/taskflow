@@ -96,7 +96,7 @@ export const creditAPI = {
   create:  (d)     => api.post('/api/credits', d, { headers: { 'Content-Type': 'multipart/form-data' } }),
   update:  (id, d) => api.put(`/api/credits/${id}`, d),
   delete:  (id)    => api.delete(`/api/credits/${id}`),
-  react:   (id, d) => api.post(`/api/credits/${id}/react`, d),
+  react:   (id, emoji) => api.post(`/api/credits/${id}/react`, { emoji }),
   fileUrl: (id)    => `${BASE}/api/credits/file/${id}`,
 };
 
