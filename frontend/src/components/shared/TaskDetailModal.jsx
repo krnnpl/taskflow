@@ -337,7 +337,21 @@ function FileRow({ att, onDelete, userId, userRole }) {
       </Box>
       <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
         <Tooltip title="Download">
-          <IconButton size="small" component="a" href={taskAPI.downloadAttachment(att.id)} download sx={{ color: '#6366f1', '&:hover': { bgcolor: 'rgba(139,92,246,0.15)' } }}>
+          <IconButton size="small" onClick={async () => {
+              try {
+                const url = taskAPI.downloadAttachment(att.id);
+                const res = await fetch(url);
+                if (!res.ok) { alert('File not available on server.'); return; }
+                const blob = await res.blob();
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = att.originalName || 'download';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+              } catch { alert('Download failed.'); }
+            }} sx={{ color: '#6366f1', '&:hover': { bgcolor: 'rgba(139,92,246,0.15)' } }}>
             <Download sx={{ fontSize: 16 }} />
           </IconButton>
         </Tooltip>

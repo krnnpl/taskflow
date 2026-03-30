@@ -33,14 +33,18 @@ const FileAttachment = memo(({ msg, isMe }) => {
   const handleDownload = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('taskflow_token');
-      const res = await fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
-      if (!res.ok) { alert('File not available. It may have been lost during server restart.'); return; }
+      const res = await fetch(url);
+      if (!res.ok) {
+        alert('File not available. It may have been removed from the server.');
+        return;
+      }
       const blob = await res.blob();
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = msg.fileOriginalName || 'download';
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(a.href);
     } catch { alert('Download failed. Please try again.'); }
   };

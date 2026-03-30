@@ -6,6 +6,9 @@ const ac = require('../controllers/attachmentController');
 const { protect, restrictTo } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 
+// Public file download
+router.get('/attachments/:id/download', require('../controllers/attachmentController').downloadAttachment);
+
 router.use(protect);
 
 // Task CRUD

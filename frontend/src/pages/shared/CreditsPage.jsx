@@ -114,7 +114,19 @@ function CreditPost({ post, currentUser, darkMode, onEdit, onDelete, onReact }) 
                   border: '1px solid', cursor: 'pointer', '&:hover': { opacity: 0.9 } }}
                 onClick={() => window.open(fileUrl, '_blank')} />
             ) : (
-              <Box component="a" href={fileUrl} download={post.fileOriginalName}
+              <Box component="a" href={fileUrl} onClick={async (e) => {
+                  e.preventDefault();
+                  try {
+                    const res = await fetch(fileUrl);
+                    if (!res.ok) { alert('File not available on server.'); return; }
+                    const blob = await res.blob();
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = post.fileOriginalName || 'download';
+                    document.body.appendChild(a); a.click();
+                    document.body.removeChild(a); URL.revokeObjectURL(a.href);
+                  } catch { alert('Download failed.'); }
+                }}
                 sx={{ display: 'inline-flex', alignItems: 'center', gap: 1,
                   px: 1.5, py: 1, borderRadius: 2, textDecoration: 'none', cursor: 'pointer',
                   bgcolor: darkMode ? 'rgba(99,102,241,0.1)' : '#f1f5f9',
