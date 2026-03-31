@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SwapHoriz,
+import {
   Box, Drawer, AppBar, Toolbar, Typography, List, ListItem,
   ListItemButton, ListItemIcon, ListItemText, Avatar, IconButton,
   Divider, Menu, MenuItem, Badge, Tooltip, Chip, alpha
@@ -8,7 +8,7 @@ import {
   Dashboard, Assignment, People, Feedback, Analytics, Menu as MenuIcon,
   ExitToApp, Add, SupervisorAccount, RateReview, BarChart, CalendarMonth,
   GroupAdd, ViewWeek, Chat, DarkMode, LightMode, EmojiEvents, BeachAccess,
-  NotificationsNone, KeyboardArrowDown
+  NotificationsNone, KeyboardArrowDown, SwapHoriz
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import { useDarkMode } from '../../context/DarkModeContext';
