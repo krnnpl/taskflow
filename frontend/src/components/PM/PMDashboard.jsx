@@ -8,8 +8,10 @@ import FeedbackModal from '../shared/FeedbackModal';
 import ActivityFeed from '../shared/ActivityFeed';
 import InviteModal from '../shared/InviteModal';
 import { taskAPI, userAPI } from '../../utils/api';
+import { useNavigate } from 'react-router-dom';
 
 export default function PMDashboard() {
+  const navigate = useNavigate();
   const [tab, setTab] = useState(0);
   const [tasks, setTasks] = useState([]);
   const [stats, setStats] = useState({});
@@ -38,7 +40,7 @@ export default function PMDashboard() {
         <Box sx={{ display: 'flex', gap: 1.5 }}>
           <Button variant="outlined" startIcon={<PersonAdd />} onClick={() => setInviteOpen(true)}
             sx={{ borderRadius: 2, borderColor: 'divider', color: 'text.secondary', fontWeight: 600, textTransform: 'none' }}>Invite</Button>
-          <Button variant="contained" startIcon={<Add />} onClick={() => { setEditTask(null); setCreateOpen(true); }}
+          <Button variant="contained" startIcon={<Add />} onClick={() => navigate('/pm/create-task')}
             sx={{ borderRadius: 2, bgcolor: '#6366f1', '&:hover': { bgcolor: '#4f46e5' }, fontWeight: 600, textTransform: 'none' }}>New Task</Button>
         </Box>
       </Box>

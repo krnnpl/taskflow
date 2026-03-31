@@ -247,7 +247,16 @@ exports.updateTask = async (req, res) => {
       if (priority !== undefined)           task.priority = priority;
       if (estimatedMinutes !== undefined)   task.estimatedMinutes = estimatedMinutes;
       if (dependsOn !== undefined)          task.dependsOn = dependsOn || null;
-      if (assignedToAssigner !== undefined) task.assignedToAssigner = assignedToAssigner;
+      if (assignedToAssigner !== undefined) {
+        task.assignedToAssigner = assignedToAssigner;
+        // Auto update status when assigning/unassigning
+        if (assignedToAssigner && task.status === 'pending') {
+          task.status = 'assigned_to_assigner';
+        } else if (!assignedToAssigner && task.status === 'assigned_to_assigner') {
+          task.status = 'pending';
+          task.assignedToWriter = null;
+        }
+      }
       if (status !== undefined) {
         task.status = status;
         if (status === 'completed') task.completionDate = new Date();

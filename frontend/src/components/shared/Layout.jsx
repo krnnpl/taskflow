@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
+import { SwapHoriz,
   Box, Drawer, AppBar, Toolbar, Typography, List, ListItem,
   ListItemButton, ListItemIcon, ListItemText, Avatar, IconButton,
   Divider, Menu, MenuItem, Badge, Tooltip, Chip, alpha
@@ -56,6 +56,7 @@ const roleMenus = {
     { label: 'Dashboard',   icon: <Dashboard sx={{ fontSize: 18 }} />,     path: '/pm/dashboard' },
     { label: 'Tasks',       icon: <Assignment sx={{ fontSize: 18 }} />,    path: '/pm/tasks' },
     { label: 'Create Task', icon: <Add sx={{ fontSize: 18 }} />,           path: '/pm/create-task' },
+    { label: 'Reassign',    icon: <SwapHoriz sx={{ fontSize: 18 }} />,     path: '/pm/reassign' },
     { label: 'Analytics',   icon: <BarChart sx={{ fontSize: 18 }} />,      path: '/pm/analytics' },
     { label: 'Performance', icon: <Analytics sx={{ fontSize: 18 }} />,     path: '/pm/performance' },
     { label: 'Feedback',    icon: <RateReview sx={{ fontSize: 18 }} />,    path: '/pm/feedback' },

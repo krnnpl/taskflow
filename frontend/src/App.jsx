@@ -32,6 +32,7 @@ import PMTasks            from './pages/pm/PMTasks';
 import PMCreateTask       from './pages/pm/PMCreateTask';
 import PMPerformance      from './pages/pm/PMPerformance';
 import PMFeedback         from './pages/pm/PMFeedback';
+import PMReassign         from './pages/pm/PMReassign';
 import AssignerDashboard  from './components/Assigner/AssignerDashboard';
 import AssignerTasks      from './pages/assigner/AssignerTasks';
 import AssignerAssign     from './pages/assigner/AssignerAssign';
@@ -367,6 +368,7 @@ function AppRoutes() {
         <Route path="/pm/chat"         element={<ProtectedRoute roles={['pm']}><ChatPage /></ProtectedRoute>} />
         <Route path="/pm/credits"      element={<ProtectedRoute roles={['pm']}><CreditsPage /></ProtectedRoute>} />
         <Route path="/pm/invite"       element={<ProtectedRoute roles={['pm']}><InvitePage /></ProtectedRoute>} />
+        <Route path="/pm/reassign"     element={<ProtectedRoute roles={['pm']}><PMReassign /></ProtectedRoute>} />
 
         {/* Assigner */}
         <Route path="/assigner/dashboard"    element={<ProtectedRoute roles={['assigner']}><AssignerDashboard /></ProtectedRoute>} />
