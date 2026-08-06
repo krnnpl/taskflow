@@ -9,7 +9,7 @@ const Feedback = sequelize.define('Feedback', {
   feedbackText: { type: DataTypes.TEXT,    allowNull: true },
   rating:       { type: DataTypes.INTEGER, validate: { min: 1, max: 5 } },
   isComplaint:  { type: DataTypes.BOOLEAN, defaultValue: false },
-  correctionRequested: { type: DataTypes.BOOLEAN, defaultValue: false }, // NEW: counts toward corrections metric
+  correctionRequested: { type: DataTypes.BOOLEAN, defaultValue: false },
 }, { tableName: 'feedback' });
 
 module.exports = Feedback;
